@@ -196,12 +196,13 @@ class GraphFrame extends JFrame implements ActionListener, KeyListener {
 	private PointIO pointIO;
 	public void keyTyped(KeyEvent e) {}
 	public void keyReleased(KeyEvent e) {}
-	//The keyPressed function in this program determines the color of the Point or whether it is continuous
-	//based on the key pressed:
+	//This function will configure the menu and the menu bar. It allows for multiple functions to be added to
+	//the menu bar
 	public void configureMenu() {
 		JMenuBar bar = new JMenuBar();
 		JMenu menuFile = new JMenu("File");
 		JMenuItem miOpen = new JMenuItem("Open");
+		//Create a JFileChooser for the file opener 
 		JFileChooser jfc = new JFileChooser();
 		FileFilter filter = new FileNameExtensionFilter("binary","bin");
 		jfc.addChoosableFileFilter(filter);
@@ -255,6 +256,7 @@ class GraphFrame extends JFrame implements ActionListener, KeyListener {
 	}
 	public void actionPerformed(ActionEvent e) {	
 	}
+	//Configure the JFrame
 	public void configureUI() {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setBounds(100,100,1000,1000);
@@ -278,6 +280,7 @@ class GraphFrame extends JFrame implements ActionListener, KeyListener {
 		pointIO = new PointIO(graphpoints);
 		configureUI();
 	}
+	//This opens a dialog menu when the user types in information about their point
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 			String s = dataEntryField.getText();
@@ -309,7 +312,7 @@ class DrawGraphPanelController extends JPanel {
 	private ArrayList<GraphPoint> graphpoints;
 	private GraphPoint prevPoint;
 	private Color col;
-	private final int SCORE = 20;;
+	private final int MAX = 20;;
 	private final int GAP = 30;
 	private final int GRAPH_POINT_WIDTH = 12;
 	private final int Y_MARK_COUNT = 10;
@@ -323,9 +326,10 @@ class DrawGraphPanelController extends JPanel {
 		super.paintComponent(g);
 		//Formulas for determining the scale are as follows:
 		//X - get the width of the screen then subtract 2 * the GAP then divide by the size of the ArrayList - 1
-		//Y - get the Height of the screen then subtract 2 * the gap then divide by the max score
+		//Y - get the Height of the screen then subtract 2 * the gap then divide by the max MAX
 		double xGraphScale = ((double) getWidth() - 2 * GAP) / (graphpoints.size() - 1);
-		double yGraphScale = ((double) getHeight() - 2 * GAP) / (SCORE - 1); 
+		double yGraphScale = ((double) getHeight() - 2 * GAP) / (MAX - 1); 
+		//draw x axes
 	    for (int i = 0; i < Y_MARK_COUNT; i++) {
 	       int x0 = GAP;
 	       int x1 = GRAPH_POINT_WIDTH + GAP;
@@ -333,6 +337,7 @@ class DrawGraphPanelController extends JPanel {
 	       int y1 = y0;
 	       g.drawLine(x0, y0, x1, y1);
 	     }
+	    //draw y axes
 	    for (int i = 0; i < graphpoints.size() - 1; i++) {
 	       int x0 = (i + 1) * (getWidth() - GAP * 2) / (graphpoints.size() - 1) + GAP;
 	       int x1 = x0;
@@ -343,6 +348,7 @@ class DrawGraphPanelController extends JPanel {
 	    }
 	    g.drawLine(GAP, getHeight() - GAP, GAP, GAP);
 	    g.drawLine(GAP, getHeight() - GAP, getWidth() - GAP, getHeight() - GAP);
+	    //draw points on the graph
 	    for (int i = 0; i < graphpoints.size(); i++) {
 	    	int x = graphpoints.get(i).getX() - 12 / 2;
 	    	int y = graphpoints.get(i).getY() - 12 / 2;
@@ -358,6 +364,10 @@ class DrawGraphPanelController extends JPanel {
 	    	g.fillOval(x, y, 12, 12);
 	    	repaint();
 	    }
+	    //draw a rough line between the points 
+	    //** Note this is not a perfect line
+	    //** It is merely an example
+	    //****
 	    for (GraphPoint p : graphpoints) {
 			//Set the color of the graphics that are about to be displayed based on the point's color.
 			//g.setColor(gf.getColor());
@@ -393,6 +403,7 @@ class DrawGraphPanelController extends JPanel {
 public class GraphApp {
 	public static void main(String[] args) {
 		ArrayList<GraphPoint> graphpoints = new ArrayList<GraphPoint>();
+		//Several test points to test functionality
 		System.out.println("-------------------------");
 		System.out.println("Name:  X-Coord:  Y-Coord:");
 		graphpoints.add(new GraphPoint("Test",100,300,"black"));
