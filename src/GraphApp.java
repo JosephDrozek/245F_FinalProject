@@ -128,11 +128,12 @@ class GraphPoint {
 //PointIO - PointInputOutput - provides functions to read and write to files.
 //It is used within GraphFrame to populate the Graph with data or save the data to a file.
 class PointIO {
-	public boolean writePointsToTextFile(ArrayList<GraphPoint> points, File f) {
+	private ArrayList<GraphPoint> graphpoints;
+	public boolean writePointsToTextFile(File f) {
 		try {
 			PrintWriter pw = new PrintWriter(new BufferedWriter(
 					new FileWriter(f)));
-			for (GraphPoint p : points) {
+			for (GraphPoint p : graphpoints) {
 				pw.println(p);
 			}
 			pw.close();
@@ -141,27 +142,27 @@ class PointIO {
 			return false;
 		}
 	}
-	public ArrayList<GraphPoint> readPointsFromTextFile(File f) {
+	public void readPointsFromTextFile(File f) {
 		ArrayList<GraphPoint> result = new ArrayList<GraphPoint>();
 		try {
 			Scanner sc = new Scanner(f);
 			String line;
 			String[] parts;
+			graphpoints.clear();
 			GraphPoint p;
 			while (sc.hasNextLine()) {
 				line = sc.nextLine();
 				parts = line.split(" ");
 				p = new GraphPoint(parts[0], Integer.parseInt(parts[1]),Integer.parseInt(parts[2]), parts[3]);
-				result.add(p);
+				graphpoints.add(p);
 				
 			}
 			sc.close();
-			return result;
 		} catch (Exception ex) {
-			return null;
+
 		}
 	}
-	public boolean writePointsToBinaryFile(ArrayList<GraphPoint> graphpoints, File f) {
+	public boolean writePointsToBinaryFile(File f) {
 		try { 
 			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
 			oos.writeObject(graphpoints);
@@ -172,14 +173,20 @@ class PointIO {
 		}
 	}
 	@SuppressWarnings("unchecked")
-	public ArrayList<GraphPoint> readPointsFromBinaryFile(File f) {
+	public void readPointsFromBinaryFile(File f) {
 		try {
 			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
-			ArrayList<GraphPoint> graphpoints = (ArrayList<GraphPoint>)(ois.readObject());
-			return graphpoints;
+			ArrayList<GraphPoint> newPoints = (ArrayList<GraphPoint>)(ois.readObject());
+			graphpoints.clear();
+			for (GraphPoint point : newPoints) {
+				graphpoints.add(new GraphPoint(point.getName(),point.getX(),point.getY(),point.getColor()));
+			}
+			ois.close();
 		} catch (Exception ex) {
-			return null;
 		}
+	}
+	public PointIO(ArrayList<GraphPoint> graphpoints) {
+		this.graphpoints = graphpoints;
 	}
 }
 class GraphFrame extends JFrame implements ActionListener, KeyListener {
@@ -209,10 +216,12 @@ class GraphFrame extends JFrame implements ActionListener, KeyListener {
 				if (jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 					f = jfc.getSelectedFile();
 					if (f.getName().endsWith("bin")) {
-						graphpoints = pointIO.readPointsFromBinaryFile(f);
+						pointIO.readPointsFromBinaryFile(f);
+						repaint();
 					}
 					else if (f.getName().endsWith("txt")) {
-						graphpoints = pointIO.readPointsFromTextFile(f);
+						pointIO.readPointsFromTextFile(f);
+						repaint();
 					}
 				}
 			}
@@ -226,10 +235,10 @@ class GraphFrame extends JFrame implements ActionListener, KeyListener {
 				if (jfc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
 					f = jfc.getSelectedFile();
 					if (f.getName().endsWith("bin")) {
-						pointIO.writePointsToBinaryFile(graphpoints,f);
+						pointIO.writePointsToBinaryFile(f);
 					}
 					else {
-						pointIO.writePointsToTextFile(graphpoints,f);
+						pointIO.writePointsToTextFile(f);
 					}
 				}
 			}
@@ -267,6 +276,7 @@ class GraphFrame extends JFrame implements ActionListener, KeyListener {
 	}
 	public GraphFrame(ArrayList<GraphPoint> graphpoints) {
 		this.graphpoints = graphpoints;
+		pointIO = new PointIO(graphpoints);
 		configureUI();
 	}
 	public void keyPressed(KeyEvent e) {
