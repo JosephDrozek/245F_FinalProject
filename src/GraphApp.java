@@ -226,7 +226,6 @@ class GraphFrame extends JFrame implements ActionListener, KeyListener {
 				}
 			}
 		});
-		//
 		menuFile.add(miOpen);
 		JMenuItem miSave = new JMenuItem("Save");
 		miSave.addActionListener(new ActionListener() {
